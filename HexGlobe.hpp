@@ -120,55 +120,61 @@ public:
 	// Loop below creates a hex graph that wraps horizontally
 	for (size_t col = 0; col < w; ++col) {
 	    for (size_t row = 0; row < h; ++row) {
+		const auto MapNodeToHexEdge =
+		    [&grid, col, row](const int edge,
+				      const size_t targetCol,
+				      const size_t targetRow) {
+			grid[col][row]->neighbors[edge] = grid[targetCol][targetRow];
+		    };
 		if (row == 0) {
-		    grid[col][row]->neighbors[Bottom] = grid[col][row + 1];
+		    MapNodeToHexEdge(Bottom, col, row + 1);
 		} else if (row == h - 1) {
-		    grid[col][row]->neighbors[Top] = grid[col][row - 1];
+		    MapNodeToHexEdge(Top, col, row - 1);
 		} else {
-		    grid[col][row]->neighbors[Top] = grid[col][row - 1];
-		    grid[col][row]->neighbors[Bottom] = grid[col][row + 1];
+		    MapNodeToHexEdge(Top, col, row - 1);
+		    MapNodeToHexEdge(Bottom, col, row + 1);
 		}
 		if (col == 0) {
-		    grid[col][row]->neighbors[TopRight] = grid[col + 1][row];
-		    grid[col][row]->neighbors[TopLeft] = grid[w - 1][row];
+		    MapNodeToHexEdge(TopRight, col + 1, row);
+		    MapNodeToHexEdge(TopLeft, w - 1, row);
 		    if (row == h - 1) {
-			grid[col][row]->neighbors[BottomRight] = grid[col + 1][0];
-			grid[col][row]->neighbors[BottomLeft] = grid[w - 1][0];
+			MapNodeToHexEdge(BottomRight, col + 1, 0);
+			MapNodeToHexEdge(BottomLeft, w - 1, 0);
 		    } else {
-			grid[col][row]->neighbors[BottomRight] = grid[col + 1][row + 1];
-			grid[col][row]->neighbors[BottomLeft] = grid[w - 1][row + 1];
+			MapNodeToHexEdge(BottomRight, col + 1, row + 1);
+			MapNodeToHexEdge(BottomLeft, w - 1, row + 1);
 		    }
 		} else if (col == w - 1) {
-		    grid[col][row]->neighbors[BottomLeft] = grid[col - 1][row];
-		    grid[col][row]->neighbors[BottomRight] = grid[w - 1][row];
+		    MapNodeToHexEdge(BottomLeft, col - 1, row);
+		    MapNodeToHexEdge(BottomRight, w - 1, row);
 		    if (row == 0) {
-			grid[col][row]->neighbors[TopLeft] = grid[col - 1][h - 1];
-			grid[col][row]->neighbors[TopRight] = grid[0][h - 1];
+			MapNodeToHexEdge(TopLeft, col - 1, h - 1);
+			MapNodeToHexEdge(TopRight, 0, h - 1);
 		    } else {
-			grid[col][row]->neighbors[TopLeft] = grid[col - 1][row - 1];
-			grid[col][row]->neighbors[TopRight] = grid[0][row - 1];
+			MapNodeToHexEdge(TopLeft, col - 1, row - 1);
+			MapNodeToHexEdge(TopRight, 0, row - 1);
 		    }
 		} else {
 		    const bool isEven = col % 2;
 		    if (isEven) {
-			grid[col][row]->neighbors[BottomLeft] = grid[col - 1][row];
-			grid[col][row]->neighbors[BottomRight] = grid[col + 1][row];
+			MapNodeToHexEdge(BottomLeft, col - 1, row);
+			MapNodeToHexEdge(BottomRight, col + 1, row);
 			if (row == 0) {
-			    grid[col][row]->neighbors[TopLeft] = grid[col - 1][h - 1];
-			    grid[col][row]->neighbors[TopRight] = grid[col + 1][h - 1];
+			    MapNodeToHexEdge(TopLeft, col - 1, h - 1);
+			    MapNodeToHexEdge(TopRight, col + 1, h - 1);
 			} else {
-			    grid[col][row]->neighbors[TopLeft] = grid[col - 1][row - 1];
-			    grid[col][row]->neighbors[TopRight] = grid[col + 1][row - 1];
+			    MapNodeToHexEdge(TopLeft, col - 1, row - 1);
+			    MapNodeToHexEdge(TopRight, col + 1, row - 1);
 			}
 		    } else {
-			grid[col][row]->neighbors[TopRight] = grid[col + 1][row];
-			grid[col][row]->neighbors[TopLeft] = grid[col - 1][row];
+			MapNodeToHexEdge(TopRight, col + 1, row);
+			MapNodeToHexEdge(TopLeft, col - 1, row);
 			if (row == h - 1) {
-			    grid[col][row]->neighbors[BottomRight] = grid[col + 1][0];
-			    grid[col][row]->neighbors[BottomLeft] = grid[col - 1][0];
+			    MapNodeToHexEdge(BottomRight, col + 1, 0);
+			    MapNodeToHexEdge(BottomLeft, col - 1, 0);
 			} else {
-			    grid[col][row]->neighbors[BottomRight] = grid[col + 1][row + 1];
-			    grid[col][row]->neighbors[BottomLeft] = grid[col - 1][row + 1];
+			    MapNodeToHexEdge(BottomRight, col + 1, row + 1);
+			    MapNodeToHexEdge(BottomLeft, col - 1, row + 1);
 			}
 		    }
 		}

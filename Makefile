@@ -1,12 +1,13 @@
 CC = clang++
 CFLAGS = -std=c++11 -O2
+LDFLAGS = -framework sfml-graphics -framework sfml-window -framework sfml-system
 SOURCES = $(wildcard *.cpp)
-OBJECTS = $(SOURCES:.cc=.o)
+OBJECTS = $(SOURCES:.cpp=.o)
 
 all: $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS)
+	$(CC) $(LDFLAGS) $(CFLAGS) $(OBJECTS)
 
-%.o: %.cc
+%.o: %.cpp
 	$(CC) -c $(CFLAGS) $< -o $@
 
 clean:
