@@ -6,6 +6,10 @@
 #include <stack>
 #include <tuple>
 #include <cassert>
+#include <unordered_map>
+#include <unordered_set>
+#include <set>
+#include <cmath>
 
 struct HexCoord {
     int col, row;
@@ -13,10 +17,9 @@ struct HexCoord {
 
 template <typename T>
 struct HexNode {
-    HexNode() : neighbors{}, colored(false) {}
+    HexNode() : neighbors{} {}
 
     HexNode(const int col, const int row) : neighbors{},
-					    colored(false),
 					    coord({col, row}) {}
     
     T data;
@@ -39,7 +42,6 @@ private:
 
     std::array<HexNode<T> *, 6> neighbors;
     HexCoord coord;
-    bool colored;
 };
 
 template <typename T>
@@ -78,33 +80,21 @@ public:
     void ForEach(F && cb) {
 	std::stack<HexNode<T> *> stack;
 	stack.push(m_entryPt);
+	std::unordered_set<HexNode<T> *> seen;
 	while (!stack.empty()) {
 	    auto current = stack.top();
-	    if (current->colored) {
+	    if (seen.find(current) != seen.end()) {
 		stack.pop();
 		continue;
 	    }
-	    current->colored = true;
+	    seen.insert(current);
 	    stack.pop();
 	    cb(current);
 	    for (auto node : current->neighbors) {
 		if (node) {
-		    if (!node->colored) {
+		    if (seen.find(node) == seen.end()) {
 			stack.push(node);
 		    }
-		}
-	    }
-	}
-	stack.push(m_entryPt);
-	while (!stack.empty()) {
-	    auto current = stack.top();
-	    current->colored = false;
-	    stack.pop();
-	    for (auto node : current->neighbors) {
-		if (node) {
-		    if (node->colored) {
-			stack.push(node);
-		    }	
 		}
 	    }
 	}

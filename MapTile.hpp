@@ -3,8 +3,9 @@ struct MapTile {
 	Ocean,
 	Sand,
 	Steppe,
-	Plains,
-	Mountain
+        Forest,
+	Mountain,
+	Count
     };
 
     enum Resource {
