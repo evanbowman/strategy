@@ -1,6 +1,5 @@
 #include <iostream>
 #include "GenMap.hpp"
-#include <chrono>
 #include <thread>
 #include "Game.hpp"
 

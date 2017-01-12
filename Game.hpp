@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <thread>
 #include <mutex>
+#include <chrono>
 #include "GenMap.hpp"
 #include "ResourceManager.hpp"
 #include "Camera.hpp"
@@ -16,11 +17,13 @@ public:
     void UpdateLogic();
     void EventLoop();
     bool IsRunning() const;
+    Cursor & GetCursor();
+    const sf::RenderWindow & GetWindow() const;
     
 private:
     HexGlobe<MapTile> m_globe;
+    sf::Clock m_logicClock;
     sf::RenderWindow m_window;
-    sf::RenderTexture m_target;
     ResourceManager m_resources;
     bool m_running;
     Camera m_camera;

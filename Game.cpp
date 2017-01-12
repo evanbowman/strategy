@@ -7,13 +7,13 @@ static const int drHeight = 490;
 Game::Game() : m_globe(GenMap(66, 42)),
 	       m_window(sf::VideoMode::getDesktopMode(), "", sf::Style::Fullscreen),
 	       m_running(true),
-	       m_camera({784, 490}) {
+	       m_camera({784, 490}),
+	       m_cursor(m_window, m_camera) {
     m_window.setFramerateLimit(60);
     m_window.setVerticalSyncEnabled(true);
     m_window.setMouseCursorVisible(false);
     sf::Sprite & oceanSprite = m_resources.GetSprite<RID::OceanBkg>();
     oceanSprite.setScale({(drWidth / 450.f) * 0.77f , (drHeight / 450.f) * 0.77f});
-    m_target.create(drWidth, drHeight);
 }
 
 template <int margin = 0>
@@ -31,18 +31,20 @@ inline static bool IsWithinView(const sf::Vector2f & targetPos, const sf::View &
 
 void Game::DrawGraphics() {
     m_window.clear(sf::Color(128, 128, 128));
-    m_target.clear(sf::Color::Transparent);
     m_window.setView(m_camera.GetCameraRegion());
-    m_target.setView(m_camera.GetDrawableRegion());
-    sf::Sprite & oceanSprite = m_resources.GetSprite<RID::OceanBkg>();
+    sf::Sprite & oceanSprite = m_resources.GetSprite<RID::Sprite::OceanBkg>();
+    const sf::Vector2f & cameraViewCenter = m_camera.GetCameraRegion().getCenter();
+    const sf::Vector2f & cameraViewSize = m_camera.GetCameraRegion().getSize();
+    oceanSprite.setPosition({cameraViewCenter.x - cameraViewSize.x / 2.f,
+			     cameraViewCenter.y - cameraViewSize.y / 2.f});
     m_window.draw(oceanSprite);
     using ZOrder = float;
     std::vector<std::pair<sf::Sprite, ZOrder>> drawables;
     m_globe.ForEach([this, &drawables](HexNode<MapTile> * node) {
 	const HexCoord & coord = node->GetCoord();
-	if (IsWithinView<48>({coord.col * 38.f, coord.row * 36.f},
+	if (IsWithinView<96>({coord.col * 38.f, coord.row * 36.f},
 			     m_camera.GetCameraRegion())) {
-	    sf::Sprite & tileset = this->m_resources.GetSprite<RID::Tileset>();
+	    sf::Sprite & tileset = this->m_resources.GetSprite<RID::Sprite::Tileset>();
 	    switch (node->data.type) {
 	    case MapTile::Ocean: return;
 	    case MapTile::Sand:
@@ -68,18 +70,23 @@ void Game::DrawGraphics() {
 		  return lhs.second < rhs.second;
 	      });
     for (const auto & element : drawables) {
-	m_target.draw(element.first);
+	m_window.draw(element.first);
     }
-    sf::Sprite & cursorSprite = m_resources.GetSprite<RID::Cursor>();
+    sf::Sprite & cursorSprite = m_resources.GetSprite<RID::Sprite::Cursor>();
     cursorSprite.setPosition(m_cursor.GetPosition());
-    m_target.draw(cursorSprite);
-    m_target.display();
-    m_window.draw(sf::Sprite(m_target.getTexture()));
+    m_window.draw(cursorSprite);
     m_window.display();
 }
 
 void Game::UpdateLogic() {
-    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    const auto logicStart = std::chrono::high_resolution_clock::now();
+    const sf::Time elapsedTime = m_logicClock.restart();
+    m_camera.Update(*this, elapsedTime);
+    const auto logicEnd = std::chrono::high_resolution_clock::now();
+    const auto duration =
+	std::chrono::duration_cast<std::chrono::nanoseconds>(logicEnd - logicStart);
+    static const std::chrono::microseconds logicUpdateLimit(2000);
+    std::this_thread::sleep_for(logicUpdateLimit - duration);
 }
 
 void Game::EventLoop() {
@@ -91,22 +98,18 @@ void Game::EventLoop() {
 	    m_running = false;
 	    break;
 
-	case sf::Event::MouseMoved:
-	    {
-		auto & defaultView = m_window.getDefaultView();
-		auto & cameraView = m_camera.GetCameraRegion();
-		const sf::Vector2f scaleFactors {
-		    cameraView.getSize().x / defaultView.getSize().x,
-		    cameraView.getSize().y / defaultView.getSize().y
-		};
-		m_cursor.SetPosition({event.mouseMove.x * scaleFactors.x,
-				      event.mouseMove.y * scaleFactors.y});
-	    }
-	    break;
 	}
     }
 }
 
 bool Game::IsRunning() const {
     return m_running;
+}
+
+Cursor & Game::GetCursor() {
+    return m_cursor;
+}
+
+const sf::RenderWindow & Game::GetWindow() const {
+    return m_window;
 }
