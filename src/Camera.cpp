@@ -5,6 +5,10 @@ Camera::Camera(const sf::Vector2f & drawableArea) :
     m_target = m_cameraRegion.getCenter();
 }
 
+const sf::Vector2f & Camera::GetOffset() const {
+    return m_cameraRegion.getCenter();
+}
+
 const sf::View & Camera::GetCameraRegion() const {
     return m_cameraRegion;
 }

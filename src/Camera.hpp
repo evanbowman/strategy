@@ -10,6 +10,7 @@ public:
     Camera(const sf::Vector2f &);
     const sf::View & GetDrawableRegion() const;
     const sf::View & GetCameraRegion() const;
+    const sf::Vector2f & GetOffset() const;
     
     template <typename Game>
     void Update(Game & game, const sf::Time & elapsedTime) {

@@ -42,7 +42,14 @@ void Game::DrawGraphics() {
     std::vector<std::pair<sf::Sprite, ZOrder>> orderedDrawables;
     m_globe.ForEach([this, &orderedDrawables](HexNode<MapTile> & node) {
 	const HexCoord & coord = node.GetCoord();
-	if (IsWithinView<96>({coord.col * 38.f, coord.row * 36.f},
+	const sf::View & cameraRegion = this->m_camera.GetCameraRegion();
+	if (coord.col * 39.f > cameraRegion.getCenter().x + cameraRegion.getSize().x / 2 + 96) {
+	    node.SetCoord({coord.col - this->m_globe.GetWidth(), coord.row});
+	}
+	if (coord.col * 39.f < cameraRegion.getCenter().x - cameraRegion.getSize().x / 2 - 96) {
+	    node.SetCoord({coord.col + this->m_globe.GetWidth(), coord.row});
+	}
+	if (IsWithinView<96>({coord.col * 39.f, coord.row * 36.f},
 			     m_camera.GetCameraRegion())) {
 	    sf::Sprite & tileset = this->m_resources.GetSprite<RID::Sprite::Tileset>();
 	    static const sf::Vector2i tileSize{48, 56};

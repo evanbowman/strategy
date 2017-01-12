@@ -12,15 +12,15 @@
 #include <cmath>
 
 struct HexCoord {
-    size_t col, row;
+    int col, row;
 };
 
 template <typename T>
 struct HexNode {
     HexNode() : neighbors{} {}
 
-    HexNode(const size_t col, const size_t row) : neighbors{},
-						  coord({col, row}) {}
+    HexNode(const int col, const int row) : neighbors{},
+					    coord({col, row}) {}
     
     T data;
 	
@@ -31,15 +31,15 @@ struct HexNode {
     const HexCoord & GetCoord() const {
 	return coord;
     }
-	
+
+    void SetCoord(const HexCoord & coord) {
+        this->coord = coord;
+    }
+    
     template <typename _>
     friend class HexGlobe;
 	
 private:    
-    void SetCoord(const HexCoord & coord) {
-        this->coord = coord;
-    }
-
     std::array<HexNode<T> *, 6> neighbors;
     HexCoord coord;
 };
@@ -65,15 +65,17 @@ public:
 	}
     }
 
-    void Create(const size_t w, const size_t h) {
+    void Create(const int w, const int h) {
 	assert(w % 2 == 0);
+	m_width = w;
+	m_height = h;
 	m_nodes.clear();
 	m_nodes.resize(w * h);
 	size_t slotsUsed = 0;
 	std::vector<std::vector<HexNode<T> *>> grid(w);
-	for (size_t col = 0; col < w; ++col) {
+	for (int col = 0; col < w; ++col) {
 	    grid[col].reserve(h);
-	    for (size_t row = 0; row < h; ++row) {
+	    for (int row = 0; row < h; ++row) {
 	        grid[col].push_back(&m_nodes[slotsUsed++]);
 		grid[col].back()->SetCoord({col, row});
 	    }
@@ -150,7 +152,17 @@ public:
 	    }
 	}
     }
+
+    int GetWidth() const {
+	return m_width;
+    }
+
+    int GetHeight() const {
+	return m_height;
+    }
     
 private:
     std::vector<HexNode<T>> m_nodes;
+    int m_width;
+    int m_height;
 };
