@@ -45,23 +45,15 @@ void Game::DrawGraphics() {
 	if (IsWithinView<96>({coord.col * 38.f, coord.row * 36.f},
 			     m_camera.GetCameraRegion())) {
 	    sf::Sprite & tileset = this->m_resources.GetSprite<RID::Sprite::Tileset>();
-	    switch (node.data.type) {
-	    case MapTile::Ocean: return;
-	    case MapTile::Sand:
-	    case MapTile::Steppe:
-	    case MapTile::Forest:
-	    case MapTile::Mountain:
-		tileset.setTextureRect({node.data.type * 48, 0, 48, 56});
-		// NOTE: Hex grid, so even and odd columns are offset a bit,
-		//       hence the 'coord.col % 2'
-		if (coord.col % 2) {
-		    tileset.setPosition({39.f * coord.col, 36.f * coord.row});
-		} else {
-		    tileset.setPosition({39.f * coord.col, 36.f * coord.row + 18});
-		}
-		drawables.push_back({tileset, tileset.getPosition().y});
-		break;
+	    tileset.setTextureRect({node.data.type * 48, 0, 48, 56});
+	    // NOTE: Hex grid, i.e: the even and odd columns are offset a bit,
+	    //       hence the "coord.col % 2"
+	    if (coord.col % 2) {
+		tileset.setPosition({39.f * coord.col, 36.f * coord.row});
+	    } else {
+		tileset.setPosition({39.f * coord.col, 36.f * coord.row + 18});
 	    }
+	    drawables.push_back({tileset, tileset.getPosition().y});
 	}
     });
     std::sort(drawables.begin(), drawables.end(),
@@ -72,6 +64,7 @@ void Game::DrawGraphics() {
     for (const auto & element : drawables) {
 	m_window.draw(element.first);
     }
+    m_window.draw(m_minimap);
     sf::Sprite & cursorSprite = m_resources.GetSprite<RID::Sprite::Cursor>();
     cursorSprite.setPosition(m_cursor.GetPosition());
     m_window.draw(cursorSprite);

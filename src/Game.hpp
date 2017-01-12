@@ -9,6 +9,7 @@
 #include "ResourceManager.hpp"
 #include "Camera.hpp"
 #include "Cursor.hpp"
+#include "Minimap.hpp"
 
 class Game {
 public:
@@ -28,4 +29,5 @@ private:
     bool m_running;
     Camera m_camera;
     Cursor m_cursor;
+    Minimap m_minimap;
 };
