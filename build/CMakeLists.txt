@@ -19,9 +19,14 @@ configure_file(
   )
 include_directories("${PROJECT_BINARY_DIR}")
 
-link_directories("${SFML_DIR}/lib/")
-
 add_executable(${EXECUTABLE_NAME} ${SOURCES})
 
 include_directories("${SFML_DIR}/include/")
 
+if(APPLE)
+  target_link_libraries(${EXECUTABLE_NAME} "-framework sfml-window -framework sfml-graphics -framework sfml-system -framework sfml-audio")
+elseif(WIN32)
+  # TODO...
+elseif(UNIX)
+  # TODO...
+endif()

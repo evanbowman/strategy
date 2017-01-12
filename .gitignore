@@ -1,3 +1,11 @@
 *~
 *.o
 a.out
+*.cmake
+.DS_Store
+CMakeCache.txt
+CMakeFiles/
+Strategy
+Makefile
+lib/
+config.h
