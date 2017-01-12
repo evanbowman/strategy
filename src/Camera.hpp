@@ -17,20 +17,20 @@ public:
 	const sf::Vector2f & cursorPos =  game.GetCursor().GetPosition();
 	const sf::Vector2f & cRSize = m_cameraRegion.getSize();
 	const sf::Vector2f & cRCenter = m_cameraRegion.getCenter();
-	sf::Vector2f newTarget = m_target;
-	if (std::abs(cursorPos.y - (cRCenter.y + cRSize.y / 2)) < 48) {
-	    newTarget = sf::Vector2f(newTarget.x, newTarget.y + speed * 100);
+	if (!game.GetMinimap().Overlapping(game.GetCursor().GetPosition())) {
+	    if (std::abs(cursorPos.y - (cRCenter.y + cRSize.y / 2)) < 48) {
+		m_target = sf::Vector2f(m_target.x, m_target.y + speed * 100);
+	    }
+	    if (std::abs(cursorPos.y - (cRCenter.y - cRSize.y / 2)) < 48) {
+		m_target = sf::Vector2f(m_target.x, m_target.y - speed * 100);
+	    }
+	    if (std::abs(cursorPos.x - (cRCenter.x + cRSize.x / 2)) < 48) {
+		m_target = sf::Vector2f(m_target.x + speed * 100, m_target.y);
+	    }
+	    if (std::abs(cursorPos.x - (cRCenter.x - cRSize.x / 2)) < 48) {
+		m_target = sf::Vector2f(m_target.x - speed * 100, m_target.y);
+	    }
 	}
-	if (std::abs(cursorPos.y - (cRCenter.y - cRSize.y / 2)) < 48) {
-	    newTarget = sf::Vector2f(newTarget.x, newTarget.y - speed * 100);
-	}
-	if (std::abs(cursorPos.x - (cRCenter.x + cRSize.x / 2)) < 48) {
-	    newTarget = sf::Vector2f(newTarget.x + speed * 100, newTarget.y);
-	}
-	if (std::abs(cursorPos.x - (cRCenter.x - cRSize.x / 2)) < 48) {
-	    newTarget = sf::Vector2f(newTarget.x - speed * 100, newTarget.y);
-	}
-	m_target = newTarget;
 	auto & defaultView = game.GetWindow().getDefaultView();
 	const sf::Vector2f scaleFactors {
 	    m_cameraRegion.getSize().x / defaultView.getSize().x,

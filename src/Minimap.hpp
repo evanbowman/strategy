@@ -2,9 +2,13 @@
 
 #include <SFML/Graphics.hpp>
 
+class Game;
+
 class Minimap : public sf::Drawable {
 public:
-    // ...
+    Minimap();
+    void Update(Game &);
+    bool Overlapping(const sf::Vector2f &);
     
 private:
     virtual void draw(sf::RenderTarget & target, sf::RenderStates states) const {

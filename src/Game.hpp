@@ -19,6 +19,8 @@ public:
     void EventLoop();
     bool IsRunning() const;
     Cursor & GetCursor();
+    Camera & GetCamera();
+    Minimap & GetMinimap();
     const sf::RenderWindow & GetWindow() const;
     
 private:

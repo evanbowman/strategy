@@ -39,13 +39,14 @@ void Game::DrawGraphics() {
 			     cameraViewCenter.y - cameraViewSize.y / 2.f});
     m_window.draw(oceanSprite);
     using ZOrder = float;
-    std::vector<std::pair<sf::Sprite, ZOrder>> drawables;
-    m_globe.ForEach([this, &drawables](HexNode<MapTile> & node) {
+    std::vector<std::pair<sf::Sprite, ZOrder>> orderedDrawables;
+    m_globe.ForEach([this, &orderedDrawables](HexNode<MapTile> & node) {
 	const HexCoord & coord = node.GetCoord();
 	if (IsWithinView<96>({coord.col * 38.f, coord.row * 36.f},
 			     m_camera.GetCameraRegion())) {
 	    sf::Sprite & tileset = this->m_resources.GetSprite<RID::Sprite::Tileset>();
-	    tileset.setTextureRect({node.data.type * 48, 0, 48, 56});
+	    static const sf::Vector2i tileSize{48, 56};
+	    tileset.setTextureRect({node.data.type * tileSize.x, 0, tileSize.x, tileSize.y});
 	    // NOTE: Hex grid, i.e: the even and odd columns are offset a bit,
 	    //       hence the "coord.col % 2"
 	    if (coord.col % 2) {
@@ -53,15 +54,15 @@ void Game::DrawGraphics() {
 	    } else {
 		tileset.setPosition({39.f * coord.col, 36.f * coord.row + 18});
 	    }
-	    drawables.push_back({tileset, tileset.getPosition().y});
+	    orderedDrawables.push_back({tileset, tileset.getPosition().y});
 	}
     });
-    std::sort(drawables.begin(), drawables.end(),
+    std::sort(orderedDrawables.begin(), orderedDrawables.end(),
 	      [](const std::pair<sf::Sprite, ZOrder> & lhs,
 		 const std::pair<sf::Sprite, ZOrder> & rhs) {
 		  return lhs.second < rhs.second;
 	      });
-    for (const auto & element : drawables) {
+    for (const auto & element : orderedDrawables) {
 	m_window.draw(element.first);
     }
     m_window.draw(m_minimap);
@@ -75,9 +76,7 @@ void Game::UpdateLogic() {
     const auto logicStart = std::chrono::high_resolution_clock::now();
     const sf::Time elapsedTime = m_logicClock.restart();
     m_camera.Update(*this, elapsedTime);
-    m_globe.ForEach([](HexNode<MapTile> & node) {
-	// Update logic...
-    });
+    m_minimap.Update(*this);
     const auto logicEnd = std::chrono::high_resolution_clock::now();
     const auto duration =
 	std::chrono::duration_cast<std::chrono::nanoseconds>(logicEnd - logicStart);
@@ -104,6 +103,14 @@ bool Game::IsRunning() const {
 
 Cursor & Game::GetCursor() {
     return m_cursor;
+}
+
+Camera & Game::GetCamera() {
+    return m_camera;
+}
+
+Minimap & Game::GetMinimap() {
+    return m_minimap;
 }
 
 const sf::RenderWindow & Game::GetWindow() const {
