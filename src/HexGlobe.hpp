@@ -12,7 +12,7 @@
 #include <cmath>
 
 struct HexCoord {
-    int col, row;
+    long col, row;
 };
 
 template <typename T>

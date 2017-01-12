@@ -43,10 +43,17 @@ void Game::DrawGraphics() {
     m_globe.ForEach([this, &orderedDrawables](HexNode<MapTile> & node) {
 	const HexCoord & coord = node.GetCoord();
 	const sf::View & cameraRegion = this->m_camera.GetCameraRegion();
-	if (coord.col * 39.f > cameraRegion.getCenter().x + cameraRegion.getSize().x / 2 + 96) {
+	// NOTE: Jumping the HexNode coordinate by the globe width when outside the
+	//       view has the result of wrapping the map horizontally.
+	//       By my calculations overflow will not occur by jumping column indices
+	//       for 4.34 trillion years of scrolling, which is 320 times the age of
+	//       the universe at time of writing.
+	if (coord.col * 39.f > cameraRegion.getCenter().x
+	    + cameraRegion.getSize().x / 2 + 96) {
 	    node.SetCoord({coord.col - this->m_globe.GetWidth(), coord.row});
 	}
-	if (coord.col * 39.f < cameraRegion.getCenter().x - cameraRegion.getSize().x / 2 - 96) {
+	if (coord.col * 39.f < cameraRegion.getCenter().x
+	    - cameraRegion.getSize().x / 2 - 96) {
 	    node.SetCoord({coord.col + this->m_globe.GetWidth(), coord.row});
 	}
 	if (IsWithinView<96>({coord.col * 39.f, coord.row * 36.f},
@@ -54,7 +61,7 @@ void Game::DrawGraphics() {
 	    sf::Sprite & tileset = this->m_resources.GetSprite<RID::Sprite::Tileset>();
 	    static const sf::Vector2i tileSize{48, 56};
 	    tileset.setTextureRect({node.data.type * tileSize.x, 0, tileSize.x, tileSize.y});
-	    // NOTE: Hex grid, i.e: the even and odd columns are offset a bit,
+	    // NOTE: Hex grid, i.e: the even and odd columns are offset vertically a bit,
 	    //       hence the "coord.col % 2"
 	    if (coord.col % 2) {
 		tileset.setPosition({39.f * coord.col, 36.f * coord.row});
