@@ -9,7 +9,7 @@ Game::Game() : m_globe(GenMap(66, 42)),
 	       m_running(true),
 	       m_camera({784, 490}),
 	       m_cursor(m_window, m_camera) {
-    m_window.setFramerateLimit(60);
+    m_window.setFramerateLimit(120);
     m_window.setVerticalSyncEnabled(true);
     m_window.setMouseCursorVisible(false);
     sf::Sprite & oceanSprite = m_resources.GetSprite<RID::Sprite::OceanBkg>();
@@ -89,6 +89,7 @@ void Game::DrawGraphics() {
 void Game::UpdateLogic() {
     const auto logicStart = std::chrono::high_resolution_clock::now();
     const sf::Time elapsedTime = m_logicClock.restart();
+    m_cursor.Update(*this);
     m_camera.Update(*this, elapsedTime);
     m_minimap.Update(*this);
     const auto logicEnd = std::chrono::high_resolution_clock::now();
@@ -106,9 +107,12 @@ void Game::EventLoop() {
 	    m_window.close();
 	    m_running = false;
 	    break;
-
 	}
     }
+}
+
+const sf::RenderWindow & Game::GetWindow() const {
+    return m_window;
 }
 
 bool Game::IsRunning() const {
@@ -127,6 +131,6 @@ Minimap & Game::GetMinimap() {
     return m_minimap;
 }
 
-const sf::RenderWindow & Game::GetWindow() const {
-    return m_window;
+HexGlobe<MapTile> & Game::GetGlobe() {
+    return m_globe;
 }

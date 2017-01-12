@@ -1,6 +1,8 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <cmath>
+#include <mutex>
 
 class Game;
 
@@ -9,13 +11,13 @@ public:
     Minimap();
     void Update(Game &);
     bool Overlapping(const sf::Vector2f &);
+    const sf::Vector2f & GetPosition() const;
+    sf::Vector2f GetSize() const;
     
 private:
-    virtual void draw(sf::RenderTarget & target, sf::RenderStates states) const {
-        target.draw(m_bkg, states);
-	target.draw(m_view, states);
-    }
-    
+    virtual void draw(sf::RenderTarget &, sf::RenderStates) const;
+
+    mutable std::mutex m_mutex;
     sf::RectangleShape m_bkg;
-    sf::RectangleShape m_view;
+    mutable sf::RectangleShape m_view;
 };

@@ -21,6 +21,7 @@ public:
     Cursor & GetCursor();
     Camera & GetCamera();
     Minimap & GetMinimap();
+    HexGlobe<MapTile> & GetGlobe();
     const sf::RenderWindow & GetWindow() const;
     
 private:

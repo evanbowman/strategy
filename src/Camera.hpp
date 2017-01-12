@@ -11,6 +11,7 @@ public:
     const sf::View & GetDrawableRegion() const;
     const sf::View & GetCameraRegion() const;
     const sf::Vector2f & GetOffset() const;
+    void Jump(const sf::Vector2f & position);
     
     template <typename Game>
     void Update(Game & game, const sf::Time & elapsedTime) {
@@ -19,11 +20,15 @@ public:
 	const sf::Vector2f & cRSize = m_cameraRegion.getSize();
 	const sf::Vector2f & cRCenter = m_cameraRegion.getCenter();
 	if (!game.GetMinimap().Overlapping(game.GetCursor().GetPosition())) {
-	    if (std::abs(cursorPos.y - (cRCenter.y + cRSize.y / 2)) < 48) {
-		m_target = sf::Vector2f(m_target.x, m_target.y + speed * 100);
+	    if (m_target.y + cRSize.y / 2 < game.GetGlobe().GetHeight() * 36.f) {
+		if (std::abs(cursorPos.y - (cRCenter.y + cRSize.y / 2)) < 48) {
+		    m_target = sf::Vector2f(m_target.x, m_target.y + speed * 100);
+		}
 	    }
-	    if (std::abs(cursorPos.y - (cRCenter.y - cRSize.y / 2)) < 48) {
-		m_target = sf::Vector2f(m_target.x, m_target.y - speed * 100);
+	    if (m_target.y - cRSize.y / 2 > 0) {
+		if (std::abs(cursorPos.y - (cRCenter.y - cRSize.y / 2)) < 48) {
+		    m_target = sf::Vector2f(m_target.x, m_target.y - speed * 100);
+		}
 	    }
 	    if (std::abs(cursorPos.x - (cRCenter.x + cRSize.x / 2)) < 48) {
 		m_target = sf::Vector2f(m_target.x + speed * 100, m_target.y);

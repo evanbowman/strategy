@@ -9,6 +9,11 @@ const sf::Vector2f & Camera::GetOffset() const {
     return m_cameraRegion.getCenter();
 }
 
+void Camera::Jump(const sf::Vector2f & position) {
+    m_target = position;
+    m_cameraRegion.setCenter(position);
+}
+
 const sf::View & Camera::GetCameraRegion() const {
     return m_cameraRegion;
 }
