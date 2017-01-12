@@ -12,7 +12,7 @@ Game::Game() : m_globe(GenMap(66, 42)),
     m_window.setFramerateLimit(60);
     m_window.setVerticalSyncEnabled(true);
     m_window.setMouseCursorVisible(false);
-    sf::Sprite & oceanSprite = m_resources.GetSprite<RID::OceanBkg>();
+    sf::Sprite & oceanSprite = m_resources.GetSprite<RID::Sprite::OceanBkg>();
     oceanSprite.setScale({(drWidth / 450.f) * 0.77f , (drHeight / 450.f) * 0.77f});
 }
 
@@ -82,6 +82,9 @@ void Game::UpdateLogic() {
     const auto logicStart = std::chrono::high_resolution_clock::now();
     const sf::Time elapsedTime = m_logicClock.restart();
     m_camera.Update(*this, elapsedTime);
+    m_globe.ForEach([](HexNode<MapTile> * node) {
+	// Update logic...
+    });
     const auto logicEnd = std::chrono::high_resolution_clock::now();
     const auto duration =
 	std::chrono::duration_cast<std::chrono::nanoseconds>(logicEnd - logicStart);
