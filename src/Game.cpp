@@ -40,18 +40,18 @@ void Game::DrawGraphics() {
     m_window.draw(oceanSprite);
     using ZOrder = float;
     std::vector<std::pair<sf::Sprite, ZOrder>> drawables;
-    m_globe.ForEach([this, &drawables](HexNode<MapTile> * node) {
-	const HexCoord & coord = node->GetCoord();
+    m_globe.ForEach([this, &drawables](HexNode<MapTile> & node) {
+	const HexCoord & coord = node.GetCoord();
 	if (IsWithinView<96>({coord.col * 38.f, coord.row * 36.f},
 			     m_camera.GetCameraRegion())) {
 	    sf::Sprite & tileset = this->m_resources.GetSprite<RID::Sprite::Tileset>();
-	    switch (node->data.type) {
+	    switch (node.data.type) {
 	    case MapTile::Ocean: return;
 	    case MapTile::Sand:
 	    case MapTile::Steppe:
 	    case MapTile::Forest:
 	    case MapTile::Mountain:
-		tileset.setTextureRect({node->data.type * 48, 0, 48, 56});
+		tileset.setTextureRect({node.data.type * 48, 0, 48, 56});
 		// NOTE: Hex grid, so even and odd columns are offset a bit,
 		//       hence the 'coord.col % 2'
 		if (coord.col % 2) {
@@ -82,7 +82,7 @@ void Game::UpdateLogic() {
     const auto logicStart = std::chrono::high_resolution_clock::now();
     const sf::Time elapsedTime = m_logicClock.restart();
     m_camera.Update(*this, elapsedTime);
-    m_globe.ForEach([](HexNode<MapTile> * node) {
+    m_globe.ForEach([](HexNode<MapTile> & node) {
 	// Update logic...
     });
     const auto logicEnd = std::chrono::high_resolution_clock::now();

@@ -1,32 +1,32 @@
 #include "GenMap.hpp"
 
-inline static void ApplySmoothing(HexNode<MapTile> * node) {
+inline static void ApplySmoothing(HexNode<MapTile> & node) {
     uint8_t count = 0;
-    for (auto neighbor : node->GetNeighbors()) {
+    for (auto neighbor : node.GetNeighbors()) {
 	if (neighbor) {
 	    if (neighbor->data.type == MapTile::Sand) {
 		++count;
 	    }
 	}
     }
-    if (node->data.type == MapTile::Sand) {
+    if (node.data.type == MapTile::Sand) {
 	if (count < 1) {
-	    node->data.type = MapTile::Ocean;
+	    node.data.type = MapTile::Ocean;
 	} else {
-	    node->data.type = MapTile::Sand;
+	    node.data.type = MapTile::Sand;
 	}
     } else {
 	if (count > 3) {
-	    node->data.type = MapTile::Sand;
+	    node.data.type = MapTile::Sand;
 	} else {
-	    node->data.type = MapTile::Ocean;
+	    node.data.type = MapTile::Ocean;
 	}
     }
 }
 
-inline static void GenerateTopography(HexNode<MapTile> * node) {
-    if (node->data.type == MapTile::Sand) {
-	for (auto neighbor : node->GetNeighbors()) {
+inline static void GenerateTopography(HexNode<MapTile> & node) {
+    if (node.data.type == MapTile::Sand) {
+	for (auto neighbor : node.GetNeighbors()) {
 	    if (neighbor) {
 		if (neighbor->data.type == MapTile::Ocean) {
 		    return;
@@ -36,8 +36,8 @@ inline static void GenerateTopography(HexNode<MapTile> * node) {
 	std::stack<HexNode<MapTile> *> stack;
 	std::unordered_map<HexNode<MapTile> *, int> distance;
 	std::set<int> results;
-	distance[node] = 0;
-	stack.push(node);
+	distance[&node] = 0;
+	stack.push(&node);
 	while (!stack.empty()) {
 	    auto current = stack.top();
 	    stack.pop();
@@ -54,16 +54,17 @@ inline static void GenerateTopography(HexNode<MapTile> * node) {
 		}
 	    }
 	}
-	node->data.type =
+	node.data.type =
 	    static_cast<MapTile::Type>(std::min((int)MapTile::Forest,
 						*results.begin()));
     }
 }
 
 HexGlobe<MapTile> GenMap(const size_t w, const size_t h) {
-    HexGlobe<MapTile> globe(w, h);
-    globe.ForEach([](HexNode<MapTile> * node) {
-	node->data.type = static_cast<MapTile::Type>(rand() % 7 < 3);
+    HexGlobe<MapTile> globe;
+    globe.Create(w, h);
+    globe.ForEach([](HexNode<MapTile> & node) {
+	node.data.type = static_cast<MapTile::Type>(rand() % 7 < 3);
     });
     for (int i = 0; i < 2; ++i) {
 	globe.ForEach(ApplySmoothing);

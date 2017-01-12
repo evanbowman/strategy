@@ -12,15 +12,15 @@
 #include <cmath>
 
 struct HexCoord {
-    int col, row;
+    size_t col, row;
 };
 
 template <typename T>
 struct HexNode {
     HexNode() : neighbors{} {}
 
-    HexNode(const int col, const int row) : neighbors{},
-					    coord({col, row}) {}
+    HexNode(const size_t col, const size_t row) : neighbors{},
+						  coord({col, row}) {}
     
     T data;
 	
@@ -46,25 +46,7 @@ private:
 
 template <typename T>
 class HexGlobe {
-public:
-    HexGlobe(HexGlobe<T> && other) : m_entryPt(other.m_entryPt) {
-	other.m_entryPt = nullptr;
-    }
-	
-    const HexGlobe<T> & operator=(HexGlobe<T> && other) {
-	m_entryPt = other.m_entryPt;
-	other.m_entryPt = nullptr;
-	return *this;
-    }
-	
-    HexGlobe(const HexGlobe<T> & other) = delete;
-	
-    const HexGlobe<T> & operator=(const HexGlobe<T> & other) = delete;
-
-    ~HexGlobe() {
-	// TODO: free graph... very carefully...
-    }
-
+public:	
     template <typename F>
     std::vector<HexNode<T> *> Filter(F && expr) {
 	std::vector<HexNode<T> *> matches;
@@ -78,35 +60,22 @@ public:
 	
     template <typename F>
     void ForEach(F && cb) {
-	std::stack<HexNode<T> *> stack;
-	stack.push(m_entryPt);
-	std::unordered_set<HexNode<T> *> seen;
-	while (!stack.empty()) {
-	    auto current = stack.top();
-	    if (seen.find(current) != seen.end()) {
-		stack.pop();
-		continue;
-	    }
-	    seen.insert(current);
-	    stack.pop();
-	    cb(current);
-	    for (auto node : current->neighbors) {
-		if (node) {
-		    if (seen.find(node) == seen.end()) {
-			stack.push(node);
-		    }
-		}
-	    }
+	for (auto & node : m_nodes) {
+	    cb(node);
 	}
     }
 
-    explicit HexGlobe(const size_t w, const size_t h) {
+    void Create(const size_t w, const size_t h) {
 	assert(w % 2 == 0);
+	m_nodes.clear();
+	m_nodes.resize(w * h);
+	size_t slotsUsed = 0;
 	std::vector<std::vector<HexNode<T> *>> grid(w);
 	for (size_t col = 0; col < w; ++col) {
 	    grid[col].reserve(h);
 	    for (size_t row = 0; row < h; ++row) {
-	        grid[col].push_back(new HexNode<T>(col, row));
+	        grid[col].push_back(&m_nodes[slotsUsed++]);
+		grid[col].back()->SetCoord({col, row});
 	    }
 	}
 	enum Edge {
@@ -180,9 +149,8 @@ public:
 		}
 	    }
 	}
-	m_entryPt = grid[0][0];
     }
     
 private:
-    HexNode<T> * m_entryPt;
+    std::vector<HexNode<T>> m_nodes;
 };
